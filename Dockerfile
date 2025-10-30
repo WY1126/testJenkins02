@@ -4,8 +4,13 @@
 #ENTRYPOINT ["top", "-b"]
 
 FROM openjdk:8-jdk
-RUN mkdir -p /app/test1
-WORKDIR /app/test1
-ADD testJenkins02-0.0.1-SNAPSHOT.jar /app/test1
+
+RUN mkdir -p /jenkinsTest/test1
+
+WORKDIR /jenkinsTest/test1
+
+ADD ./target/testJenkins02-0.0.1-SNAPSHOT.jar ./app.jar
+
 EXPOSE 19016
-ENTRYPOINT ["java","-jar","testJenkins02-0.0.1-SNAPSHOT.jar"]
+
+ENTRYPOINT ["java","-jar","app.jar"]
