@@ -25,7 +25,7 @@ public class TestController {
 
     @GetMapping("/hello")
     public void hello(){
-//        messageProducer.sendMessage(streamName, "hello 啦啦啦啦" + LocalDateTime.now());
+        messageProducer.sendMessage(streamName, "hello 啦啦啦啦" + LocalDateTime.now());
 
     }
 }

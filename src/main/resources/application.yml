@@ -2,7 +2,7 @@ spring:
   application:
     name: testJenkins02
   redis:
-    host: localhost
+    host: 172.25.230.230
     port: 6379
     database: 0
     password: 15270352655
