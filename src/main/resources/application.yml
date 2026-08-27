@@ -1,16 +1,1 @@
-spring:
-  application:
-    name: testJenkins02
-  redis:
-    host: 172.25.230.230
-    port: 6379
-    database: 0
-    password: 15270352655
-  datasource:
-    username: root
-    password: 15270352655
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://172.25.230.230:3306/blade?useSSL=false&allowPublicKeyRetrieval=true
-server:
-  port: 19016
 
