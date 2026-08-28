@@ -7,6 +7,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 // 分支
+// fix1
 public class InterruptiblyExample {
     public static void main(String[] args) throws InterruptedException {
         Lock lock = new ReentrantLock();
