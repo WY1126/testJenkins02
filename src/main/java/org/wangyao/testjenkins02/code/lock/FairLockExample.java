@@ -2,6 +2,7 @@ package org.wangyao.testjenkins02.code.lock;
 
 import java.util.concurrent.locks.ReentrantLock;
 
+// master
 public class FairLockExample {
     public static void main(String[] args) {
         // 创建公平锁
