@@ -64,6 +64,7 @@ public class NettyLocalTestClient {
         protected void channelRead0(ChannelHandlerContext ctx, byte[] msg) {
             log.info("收到服务端返回字节:{}", new String(msg));
         }
+        // test
 
         @Override
         public void channelActive(ChannelHandlerContext ctx) {
