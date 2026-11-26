@@ -1,10 +1,12 @@
 package org.wangyao.testjenkins02.code.treeToList;
 
+import cn.hutool.core.lang.func.Func;
 import com.alibaba.excel.EasyExcel;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.serializer.SerializerFeature;
+import com.baomidou.mybatisplus.core.toolkit.StringPool;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.BeanUtils;
 
@@ -14,122 +16,122 @@ import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.*;
 
 public class A {
 
+    public static final String PATTERNYMDHMS = "yyyy-MM-dd HH:mm:ss";
+
+
     public static void main(String[] args) throws Exception {
+        String[] aa = new  String[2];
+        setYesterdayDateRange2(aa);
+        System.out.println(JSON.toJSONString(aa));
+    }
 
-        // ===== 自动获取桌面路径 =====
-        String desktop = "C:\\Users\\17706\\Desktop\\";
+    public static void setYesterdayDateRange2(String[] dates) {
+        SimpleDateFormat sdf = new SimpleDateFormat(PATTERNYMDHMS);
+        // 昨天 00:00:00
+        Calendar cal = Calendar.getInstance();
+        cal.add(Calendar.DAY_OF_MONTH, -1);
+        cal.set(Calendar.HOUR_OF_DAY, 0);
+        cal.set(Calendar.MINUTE, 0);
+        cal.set(Calendar.SECOND, 0);
+        dates[0] = sdf.format(cal.getTime());
 
-        String jsonPath = desktop + "组织单位.json";
-
-        String excelPath = desktop + "组织单位1601.xlsx";
-
-        // ===== 读取 JSON =====
-        String jsonStr = new String(Files.readAllBytes(Paths.get(jsonPath)), StandardCharsets.UTF_8);
-
-        JSONObject jsonObject = JSON.parseObject(jsonStr);
-
-        List<Dept> deptList = jsonObject.getJSONArray("data").toJavaList(Dept.class);
-
-        // 2. 树形结构 → 平铺 LIST（核心方法）
-        List<Dept> resultList = new ArrayList<>();
-        for (Dept dept : deptList) {
-            flattenDeptTree(dept, resultList, "总公司/国网江苏省电力有限公司", "0,1556984886703722497,1556984886804385793", 3);
-        }
-
-        // 输出结果
-        System.out.println("展开后总行数：" + resultList.size());
-
-//        resultList.forEach(System.out::println);
-        // 3. 导出 Excel
-//        EasyExcel.write(excelPath, Dept.class)
-//                .sheet("部门数据")
-//                .doWrite(resultList);
-//        System.out.println("✅ Excel 导出成功：" + excelPath);
-
-
-        // ===================== 【导出平铺后的 List 为 JSON】 =====================
-        String exportJsonPath = "C:\\Users\\17706\\Desktop\\部门平铺数据333.json";
-//        try (OutputStreamWriter osw = new OutputStreamWriter(new FileOutputStream(exportJsonPath), StandardCharsets.UTF_8)) {
-//            // 格式化输出，带缩进
-//            JSON.writeJSONString(osw, SerializerFeature.PrettyFormat);
-//        }
-//
-        ObjectMapper mapper = new ObjectMapper();
-
-        mapper.writerWithDefaultPrettyPrinter()
-                .writeValue(
-                        new File(exportJsonPath),
-                        resultList
-                );
-        System.out.println("✅ JSON 导出成功：" + exportJsonPath);
-
-        // ===================== 【导出平铺后的 List 为 JSON】 =====================
-//        String exportJsonPath = "C:\\Users\\17706\\Desktop\\部门平铺数据.json";
-//        try (OutputStreamWriter osw = new OutputStreamWriter(new FileOutputStream(exportJsonPath), StandardCharsets.UTF_8)) {
-//            // 格式化输出，带缩进
-//            JSON.writeJSONString(osw, SerializerFeature.PrettyFormat);
-//        }
-//        System.out.println("✅ JSON 导出成功：" + exportJsonPath);
-
+        // 昨天 23:59:59
+        cal = Calendar.getInstance();
+        cal.add(Calendar.DAY_OF_MONTH, -1);
+        cal.set(Calendar.HOUR_OF_DAY, 23);
+        cal.set(Calendar.MINUTE, 59);
+        cal.set(Calendar.SECOND, 59);
+        dates[1] = sdf.format(cal.getTime());
     }
 
     /**
-     * 递归展开部门树 → 平铺成 List
-     * @param dept 当前部门
-     * @param resultList 最终平铺的集合
-     * @param parentPath 父级路径（递归传递）
+     * 获取【前一天（昨天）00:00:00  ~ 昨天 23:59:59】
+     * dates[0] = 昨天0点，dates[1] = 昨天23:59:59
      */
-    public static void flattenDeptTree(Dept dept, List<Dept> resultList, String parentPath, String anc, int cat) {
-        if (dept == null) {
-            return;
-        }
+    public static void setYesterdayDateRange(String[] dates) {
+        SimpleDateFormat sdf = new SimpleDateFormat(PATTERNYMDHMS);
+        // 昨天 00:00:00
+        Calendar cal = Calendar.getInstance();
+        cal.add(Calendar.DAY_OF_MONTH, -1);
+        cal.set(Calendar.HOUR_OF_DAY, 0);
+        cal.set(Calendar.MINUTE, 0);
+        cal.set(Calendar.SECOND, 0);
+        dates[0] = sdf.format(cal.getTime());
 
-        // 1. 复制对象，不影响原数据
-        Dept tempDept = new Dept();
-        BeanUtils.copyProperties(dept, tempDept);
-        tempDept.setChildren(null);
-
-        // ====================== 核心：拼接 ancestors_name ======================
-        String currentPath;
-        if (parentPath == null || parentPath.isEmpty()) {
-            currentPath = dept.getFullName(); // 顶层节点
-        } else {
-            currentPath = parentPath + "/" + dept.getFullName();
-        }
-
-        tempDept.setAncestorsName(currentPath);
-
-//        tempDept.setDeptCategory(currentPath.split("/").length);
-        tempDept.setDeptCategory(cat);
-        tempDept.setAncestors(anc);
-        tempDept.setTenantId("00000");
-        tempDept.setIsDeleted(0);
-        tempDept.setRegionCode("3208");
-        // ======================================================================
-
-
-        String depeCode = tempDept.getDeptCode();
-        if (depeCode!= null && !depeCode.isEmpty()) {
-            if (depeCode.startsWith("001037005015")){
-                depeCode = "100112104" + depeCode.substring(12);
-                tempDept.setDeptCode(depeCode);
-                tempDept.setQueryDeptCode(depeCode);
-                // 加入平铺列表
-                resultList.add(tempDept);
-                // 递归子部门（把当前路径传给子级）
-                if (dept.getChildren() != null && !dept.getChildren().isEmpty()) {
-                    for (Dept child : dept.getChildren()) {
-                        flattenDeptTree(child, resultList, currentPath, anc + "," +dept.getId(), cat+1);
-                    }
-                }
-            }
-        }
-
-
-
+        // 昨天 23:59:59
+        cal = Calendar.getInstance();
+        cal.add(Calendar.DAY_OF_MONTH, -1);
+        cal.set(Calendar.HOUR_OF_DAY, 23);
+        cal.set(Calendar.MINUTE, 59);
+        cal.set(Calendar.SECOND, 59);
+        dates[1] = sdf.format(cal.getTime());
     }
+
+
+
+    // 当天开始和结束时间
+    public static void setDefaultDateRange(String[] dates) {
+        SimpleDateFormat sdf = new SimpleDateFormat(PATTERNYMDHMS);
+        if (dates[0] == null || dates[0].isEmpty()) {
+            // 默认开始时间：一个月前 00:00:00
+            Calendar calendar = Calendar.getInstance();
+            calendar.add(Calendar.MONTH, 0);
+            calendar.set(Calendar.DAY_OF_MONTH, -1);
+            calendar.set(Calendar.HOUR_OF_DAY, 0);
+            calendar.set(Calendar.MINUTE, 0);
+            calendar.set(Calendar.SECOND, 0);
+            dates[0] = sdf.format(calendar.getTime());
+        } else {
+            // 前端传了开始日期，自动加 00:00:00
+            dates[0] = appendStartTime(dates[0]);
+        }
+        if (dates[1] == null || dates[1].isEmpty()) {
+            // 默认结束时间：当天 23:59:59
+            Calendar calendar = Calendar.getInstance();
+            calendar.set(Calendar.DAY_OF_MONTH, -1);
+            calendar.set(Calendar.HOUR_OF_DAY, 23);
+            calendar.set(Calendar.MINUTE, 59);
+            calendar.set(Calendar.SECOND, 59);
+            dates[1] = sdf.format(calendar.getTime());
+        } else {
+            // 前端传了结束日期，自动加 23:59:59
+            dates[1] = appendEndTime(dates[1]);
+        }
+    }
+
+    /**
+     * 开始日期追加 00:00:00
+     */
+    private static String appendStartTime(String dateStr) {
+        if (dateStr == null || dateStr.isEmpty()) {
+            return dateStr;
+        }
+        if (dateStr.length() > 10) {
+            return dateStr;
+        }
+        return dateStr + " 00:00:00";
+    }
+
+    /**
+     * 结束日期追加 23:59:59
+     */
+    private static String appendEndTime(String dateStr) {
+        if (dateStr == null || dateStr.isEmpty()) {
+            return dateStr;
+        }
+        if (dateStr.length() > 10) {
+            return dateStr;
+        }
+        return dateStr + " 23:59:59";
+    }
+
+
 }
