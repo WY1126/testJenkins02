@@ -137,6 +137,16 @@
             <version>1.2.5</version>
         </dependency>
 
+        <!-- jasypt 3.0+ 推荐，支持 RandomIvGenerator -->
+        <!-- 原生jasypt 1.9.3，阿里云能拉到 -->
+        <dependency>
+            <groupId>org.jasypt</groupId>
+            <artifactId>jasypt</artifactId>
+            <version>1.9.3</version>
+        </dependency>
+
+
+
     </dependencies>
 
     <build>
